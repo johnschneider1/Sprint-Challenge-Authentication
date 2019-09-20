@@ -7,9 +7,10 @@ const Users = require("../users/usersModel.js");
 
 router.post("/register", (req, res) => {
   // implement registration
+  let user = req.body;
   const hash = bcrypt.hashSync(user.password, 10);
   user.password = hash;
-
+  console.log(user);
   Users.add(user)
     .then(saved => {
       res.status(201).json(saved);
@@ -37,5 +38,16 @@ router.post("/login", (req, res) => {
       res.status(500).json(error);
     });
 });
+
+function generateToken(user) {
+  const payload = {
+    usersname: user.username,
+    id: user.id
+  };
+  const options = {
+    expiresIn: "1d"
+  };
+  return jwt.sign(payload, secret.jwtSecret, options);
+}
 
 module.exports = router;
